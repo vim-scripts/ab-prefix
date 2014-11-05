@@ -1,0 +1,188 @@
+*ab-prefix* Vim plugin to conditionally expand abbreviations.
+
+DESCRIPTION						       *ab-prefix.vim*
+
+This plugin provides the ability to define abbreviations that expand only if a
+particular prefix is matched.
+
+Example:~
+
+The command
+>
+    AbDef <buffer> \\\\ be beta
+<
+will define an insert mode expansion {be} that expands to {beta} ONLY if
+preceded with a backslash.
+
+This plugin was mainly written for use with |TeX| files, and the accompanying
+|tex_abbrvs.vim| file provides lots of abbreviations that can be used as
+examples.
+
+								       *AbDef*
+
+The function |AbDefineExpansion| (or the command |AbDef|) defines the required
+expansion. It is called as follows: >
+
+    AbDef iabargs prefix ab rep rrep gobble eval suffix
+>
+The arguments are as follows:
+
+    {iabargs}	    Arguments passed to |iab| when defining the abbreviation
+    {prefix}	    |regexp| that match before the abbreviation for
+		    replacement to take place.
+    {ab}	    The abbreviation.
+    {rep}	    Replacement.
+    {rrep}	    Optional right replacement (text to add after the cursor).
+    {gobble}	    If provided and the character that triggers the
+		    abbreviation matches this |regexp|, then it is gobbled.
+    {eval}	    If true, {rep} and {rrep} are passed through |eval()|
+		    before being used as replacements.
+    {suffix}	    If provided, the character that triggers the abbreviation
+		    must match this |regexp| before replacement is done. If a
+		    {suffix} is provided, {gobble} is treated as a boolean
+		    variable. If true, this character is gobbled.
+
+The arguments {rrep} {gobble} {eval} and {suffix} are all optional and can be
+omitted entirely. Any of these arguments can be set to {NONE} to explicitly
+specify them as empty or unset.
+
+							   *AbDefineExpansion*
+
+This is the function version of |AbDef| command, with the same arguments.
+
+							      *tex_abbrvs.vim*
+
+This file provides numerous conditional abbreviations that are useful when
+typing TeX documents.
+
+Greek letters:~
+
+    Use '\' followed by first two letters. Here are a few.
+
+	Text		Replacement	Notes~
+
+	\al	    	\alpha
+	\bet	    	\beta		(Because \be is used for \begin)
+	\ga	    	\gamma
+
+    Etc. For upper case letters, just upper case the first letter (e.g. "\Si"
+    produces "\Sigma").
+
+    The "var" variants are as follows:
+
+	Text		Replacement~
+
+	\ve	    	\varepsilon
+	\vt	    	\vartheta
+	\vpi	    	\varpi
+	\vr	    	\varrho
+	\vs	    	\varsigma
+	\vp	    	\varphi
+
+									 *Bab*
+
+    To easily define your own "\" commands, use the Bab commands. This is
+    equivalent to >
+
+	AbDef  <buffer> \\\\ <args>
+
+
+Environments:~
+
+    Use '\' followed by the first two letters of the environment to get a
+    complete environment. In the examples below the cursor is on the "X" after
+    replacement.
+    
+	Text		Replacement~
+
+	\beq<space>	\begin{equation}X
+			\end{equation}
+
+	\beq*		\begin{equation*}X
+			\end{equation*}
+
+	\beq\		\begin{equation}\label{X
+			\end{equation}
+
+	\beq[		\begin{equation}[X]
+			\end{equation}
+
+	\beq{		\begin{equation}{X}
+			\end{equation}
+
+    Some environments are pre-defined with fold markers (theorems, lemmas).
+    The analogue of the above with fold markers is as follows:
+
+	\bth<space>	\begin{theorem}%{{{X
+			\end{theorem}%}}}
+
+	\bth*		\begin{theorem*}%{{{X
+			\end{theorem*}%}}}
+
+	\bth\		\begin{theorem}\label{X}%{{{
+			\end{theorem}%}}}
+
+	\bth[		\begin{theorem}[X]%{{{
+			\end{theorem}%}}}
+
+	\bth{		\begin{theorem}{X}%{{{
+			\end{theorem}%}}}
+
+    If you don't want the end tag inserted automatically, you can do it in
+    stages. The first two letters of the environment name after "\begin{" or
+    "\end{" will be expanded to the environment name. For instance, typing >
+
+	\be{eq}
+<
+    results in
+>
+	\begin{equation}
+<
+    Further, if you have the |tex_autoclose| ftplugin, then the text "\en" is
+    automatically closes the last open environment.
+
+    NOTE: The construct "$$" has been depreciated in LaTeX for a while now. So
+    this plugin automatically replaces a "$$" outside math environments with
+    "\begin{equation*}" and with "\end{equation*}" inside math environments.
+
+
+					       *Cenv* *Cenvf* *Cenvs* *Cenvfs*
+    To create your own environments use the one of the |Cenv| commands. >
+
+	Cenv {ab} {envname}
+<
+    To also set up a starred version use the |Cenvs| version, for fold markers
+    use |Cenvf|, and for both use |Cenvfs|.
+
+Spaces:~
+
+    Typing "R2" produces "R^2", unless preceded by an "^" or "_" in which case
+    it produces "{R^2}". This also works for various spaces (Rd, Lp, etc.).
+    This means you can type >
+
+	\int_R2 \ab{f} \, d\la< \oo \text{for all $f \in L2$.}
+<
+    to produce >
+
+	\int_{\R^2} \abs{f}^2 \, d\lambda < \infty \text{for all $f \in L^2$.}
+
+Commands:~
+
+    Many commands can be expanded with "\" and the first two letters. Some are
+    time saving shorthands (e.g. \dx produces \partial_x). For a complete
+    list, "Use the source, Luke".
+
+References:~
+
+    Typing the first two letters of the object (theorem, lemma etc.) followed
+    by a "~" expands to what's used to reference them. For instance, typing
+    "eq~" produces "equation~\eqref{eqn".
+
+    For plurals, include an "s" before the "~". E.g. typing "ths~" produces
+    "theorems~\ref{thm"
+
+
+>
+ Maintainer : GI <gi1242@nospam.com> (replace nospam with gmail)
+ Modified   : Tue 04 Nov 2014 04:11:28 PM EST
+ vim: ft=help:tw=78:iskeyword=!-~,^*,^|,^":ai:
